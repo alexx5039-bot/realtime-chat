@@ -1,0 +1,31 @@
+from __future__ import annotations
+from datetime import datetime
+
+from sqlalchemy import String, DATETIME, func
+
+from chat.database import Base
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    email: Mapped[str] = mapped_column(
+        String(255),
+        unique=True,
+        nullable=False
+    )
+    password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
+
+    created_at: Mapped[datetime] = mapped_column(
+        DATETIME(timezone=True),
+        server_default=func.now(),
+        nullable=False
+    )
+    messages: Mapped[list["Message"]] = relationship(
+        back_populates="sender"
+    )
+    conversation_members: Mapped[list["ConversationMembers"]] = relationship(
+        back_populates="user",
+    )
