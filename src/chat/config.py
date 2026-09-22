@@ -13,24 +13,24 @@ class Settings(BaseSettings):
     )
 
 
-@property
-def database_url(self) -> str:
-    return (
-        f"postgresql+asyncpg://"
-        f"{self.postgres_user}:{self.postgres_password}"
-        f"@{self.postgres_host}:{self.postgres_port}"
-        f"/{self.postgres_db}"
-    )
+    @property
+    def database_url(self) -> str:
+        return (
+            f"postgresql+asyncpg://"
+            f"{self.postgres_user}:{self.postgres_password}"
+            f"@{self.postgres_host}:{self.postgres_port}"
+            f"/{self.postgres_db}"
+        )
 
 
-@property
-def sync_database_url(self) -> str:
-    return (
-        f"postgresql+psycopg://"
-        f"{self.postgres_user}:{self.postgres_password}"
-        f"@{self.postgres_host}:{self.postgres_port}"
-        f"/{self.postgres_db}"
-    )
+    @property
+    def sync_database_url(self) -> str:
+        return (
+            f"postgresql+psycopg://"
+            f"{self.postgres_user}:{self.postgres_password}"
+            f"@{self.postgres_host}:{self.postgres_port}"
+            f"/{self.postgres_db}"
+        )
 
 
 settings = Settings()

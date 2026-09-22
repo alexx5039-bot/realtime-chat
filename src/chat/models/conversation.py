@@ -16,7 +16,7 @@ class Conversation(Base):
     )
     messages: Mapped[list["Message"]] = relationship(
         back_populates="conversation",
-        cascade="all, delete orphan"
+        cascade="all, delete-orphan"
     )
     members: Mapped["ConversationMemeber"] = relationship(
         back_populates="conversation"

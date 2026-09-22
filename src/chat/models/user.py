@@ -1,7 +1,7 @@
 from __future__ import annotations
 from datetime import datetime
 
-from sqlalchemy import String, DATETIME, func
+from sqlalchemy import String, DateTime, func
 
 from chat.database import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -19,7 +19,7 @@ class User(Base):
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
 
     created_at: Mapped[datetime] = mapped_column(
-        DATETIME(timezone=True),
+        DateTime(timezone=True),
         server_default=func.now(),
         nullable=False
     )
