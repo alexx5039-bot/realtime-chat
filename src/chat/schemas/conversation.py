@@ -12,3 +12,8 @@ class ConversationResponse(BaseModel):
     model_config = ConfigDict(
         from_attributes=True
     )
+
+class ConversationMemberResponse(BaseModel):
+    id: int
+    conversation_id: int
+    user_id: int

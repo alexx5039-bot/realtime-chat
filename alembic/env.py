@@ -17,6 +17,7 @@ from chat.models import (
     ConversationMember,
     Message,
 )
+print("ENV FILE:", Path(__file__).resolve())
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
@@ -63,13 +64,18 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
+    print(">>> RUNNING ONLINE MIGRATIONS")
+
     connectable = create_engine(
         settings.sync_database_url,
         poolclass=pool.NullPool,
+        echo=True,
     )
 
-    with connectable.connect() as connection:
+    with connectable.begin() as connection:
+        print(">>> CONNECTED TO DB")
         print("ALEMBIC DB:", connection.engine.url)
+
         print(
             "ALEMBIC DB TABLES:",
             connection.dialect.get_table_names(connection),
@@ -80,8 +86,9 @@ def run_migrations_online() -> None:
             target_metadata=target_metadata,
         )
 
-        with context.begin_transaction():
-            context.run_migrations()
+        print(">>> RUNNING MIGRATIONS")
+        context.run_migrations()
+        print(">>> MIGRATIONS FINISHED")
 
 
 if context.is_offline_mode():

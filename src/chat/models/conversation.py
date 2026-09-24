@@ -18,6 +18,6 @@ class Conversation(Base):
         back_populates="conversation",
         cascade="all, delete-orphan"
     )
-    members: Mapped["ConversationMemeber"] = relationship(
+    members: Mapped[list["ConversationMember"]] = relationship(
         back_populates="conversation"
     )

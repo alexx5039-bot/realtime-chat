@@ -1,13 +1,11 @@
-from datetime import datetime
-
 from fastapi import APIRouter, Depends, HTTPException, status
-
+from fastapi.security import OAuth2PasswordRequestForm
 from chat.models import User
 from chat.repositories.user import UserRepository
 from chat.routes.dependencies import get_user_repo, get_current_user
 from chat.schemas.user import UserResponse, UserCreate, LoginResponse, Login, RefreshRequest
 from chat.security import hash_password, create_access_token, verify_password, create_refresh_token, \
-    decode_access_token, decode_refresh_token
+     decode_refresh_token
 
 router = APIRouter()
 
@@ -24,7 +22,7 @@ async def register(
         )
 
     password_hash = hash_password(user_data.password)
-    user = user_repo.create(
+    user = await user_repo.create(
         email=user_data.email,
         password_hash=password_hash
     )
@@ -32,10 +30,10 @@ async def register(
 
 @router.post("/login", response_model=LoginResponse)
 async def login(
-        user_data: Login,
+        form_data: OAuth2PasswordRequestForm = Depends(),
         user_repo: UserRepository = Depends(get_user_repo)
 ):
-    user = await user_repo.get_by_email(user_data.email)
+    user = await user_repo.get_by_email(form_data.username)
 
     if user is None:
         raise HTTPException(
@@ -43,7 +41,7 @@ async def login(
             detail="Invalid credentials"
         )
     if not verify_password(
-        user_data.password,
+        form_data.password,
         user.password_hash
     ):
         raise HTTPException(

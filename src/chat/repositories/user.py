@@ -1,4 +1,4 @@
-from select import select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from chat.models.user import User
 
@@ -9,7 +9,7 @@ class UserRepository:
     async def create(self, email: str, password_hash: str) -> User:
         user = User(
             email=email,
-            password=password_hash
+            password_hash=password_hash
         )
         self.db.add(user)
         await self.db.commit()

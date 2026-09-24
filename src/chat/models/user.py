@@ -26,6 +26,6 @@ class User(Base):
     messages: Mapped[list["Message"]] = relationship(
         back_populates="sender"
     )
-    conversation_members: Mapped[list["ConversationMembers"]] = relationship(
+    conversation_members: Mapped[list["ConversationMember"]] = relationship(
         back_populates="user",
     )
