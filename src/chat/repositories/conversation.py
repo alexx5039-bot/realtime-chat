@@ -62,7 +62,7 @@ class ConversationRepository:
             conversation_id=conversation_id,
             user_id=user_id
         )
-        member.user_id = user_id
+
         self.db.add(member)
         await self.db.commit()
         await self.db.refresh(member)

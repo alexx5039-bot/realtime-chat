@@ -24,7 +24,7 @@ class ConversationService:
                 detail="There should be at least two users"
             )
         for user_id in user_ids:
-            user = self.user_repo.get_by_id(user_id)
+            user = await self.user_repo.get_by_id(user_id)
             if user is None:
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,

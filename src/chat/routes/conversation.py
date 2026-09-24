@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 
 from chat.models import Conversation
 from chat.routes.dependencies import get_conversation_service
