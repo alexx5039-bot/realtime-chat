@@ -1,22 +1,24 @@
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends
+from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
 from pydantic import ValidationError
+
 from chat.repositories.conversation import ConversationRepository
 from chat.routes.dependencies import get_conversation_repo, get_message_service
+from chat.schemas.message import MessageCreate
 from chat.security import decode_access_token
 from chat.services.message import MessageService
 from chat.websocket.manager import ConnectionManager
-from chat.schemas.message import MessageCreate
 
 router = APIRouter()
 
 manager = ConnectionManager()
 
+
 @router.websocket("/{conversation_id}")
 async def websocket_endpoint(
-        websocket: WebSocket,
-        conversation_id: int,
-        conversation_repo: ConversationRepository = Depends(get_conversation_repo),
-        service: MessageService = Depends(get_message_service)
+    websocket: WebSocket,
+    conversation_id: int,
+    conversation_repo: ConversationRepository = Depends(get_conversation_repo),
+    service: MessageService = Depends(get_message_service),
 ):
     token = websocket.query_params.get("token")
     if not token:
@@ -33,10 +35,7 @@ async def websocket_endpoint(
         await websocket.close(code=1008)
         return
 
-    await manager.connect(
-        conversation_id,
-        websocket
-    )
+    await manager.connect(conversation_id, websocket)
 
     try:
         while True:
@@ -45,9 +44,7 @@ async def websocket_endpoint(
             try:
                 message_data = MessageCreate.model_validate(data)
             except ValidationError:
-                await websocket.send_json({
-                    "error": "Invalid message"
-                })
+                await websocket.send_json({"error": "Invalid message"})
                 continue
 
             message = await service.create_message(
@@ -62,10 +59,7 @@ async def websocket_endpoint(
                 "content": message.content,
                 "created_at": message.created_at.isoformat(),
             }
-            await manager.broadcast(
-                conversation_id=conversation_id,
-                message=response
-            )
+            await manager.broadcast(conversation_id=conversation_id, message=response)
 
     except WebSocketDisconnect:
         manager.disconnect(conversation_id, websocket)

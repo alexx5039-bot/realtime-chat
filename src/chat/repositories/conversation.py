@@ -16,8 +16,7 @@ class ConversationRepository:
 
         for user_id in user_ids:
             member = ConversationMember(
-                conversation_id=conversation.id,
-                user_id=user_id
+                conversation_id=conversation.id, user_id=user_id
             )
             self.db.add(member)
         await self.db.commit()
@@ -28,40 +27,31 @@ class ConversationRepository:
     async def get_by_id(self, conversation_id: int) -> Conversation | None:
         return await self.db.get(Conversation, conversation_id)
 
-
     async def get_user_conversations(self, user_id: int) -> list[Conversation]:
-        stmt = (select(Conversation)
-                .join(ConversationMember)
-                .where(ConversationMember.user_id == user_id))
+        stmt = (
+            select(Conversation)
+            .join(ConversationMember)
+            .where(ConversationMember.user_id == user_id)
+        )
 
         result = await self.db.execute(stmt)
 
         return result.scalars().all()
 
-    async def is_member(
-            self,
-            conversation_id: int,
-            user_id: int
-    ) -> bool:
-        stmt = (select(ConversationMember)
-                .where(ConversationMember.conversation_id == conversation_id,
-                       ConversationMember.user_id == user_id
-                       ))
+    async def is_member(self, conversation_id: int, user_id: int) -> bool:
+        stmt = select(ConversationMember).where(
+            ConversationMember.conversation_id == conversation_id,
+            ConversationMember.user_id == user_id,
+        )
 
         result = await self.db.execute(stmt)
         return result.scalar_one_or_none() is not None
 
     async def add_member(
-            self,
-            conversation_id: int,
-            user_id: int
+        self, conversation_id: int, user_id: int
     ) -> ConversationMember:
 
-
-        member = ConversationMember(
-            conversation_id=conversation_id,
-            user_id=user_id
-        )
+        member = ConversationMember(conversation_id=conversation_id, user_id=user_id)
 
         self.db.add(member)
         await self.db.commit()

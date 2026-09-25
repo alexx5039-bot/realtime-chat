@@ -1,8 +1,10 @@
+from datetime import UTC, datetime
 from unittest.mock import AsyncMock
 
 import pytest
 from fastapi.testclient import TestClient
-from datetime import datetime, timezone
+from starlette.websockets import WebSocketDisconnect
+
 from chat.main import app
 from chat.models import Message
 from chat.routes.dependencies import (
@@ -18,23 +20,18 @@ def test_websocket_connect():
 
     message_service = AsyncMock()
 
-    app.dependency_overrides[get_conversation_repo] = (
-        lambda: conversation_repo
-    )
-    app.dependency_overrides[get_message_service] = (
-        lambda: message_service
-    )
+    app.dependency_overrides[get_conversation_repo] = lambda: conversation_repo
+    app.dependency_overrides[get_message_service] = lambda: message_service
 
     token = create_access_token(user_id=1)
 
     client = TestClient(app)
 
-    with client.websocket_connect(
-        f"/ws/1?token={token}"
-    ) as websocket:
+    with client.websocket_connect(f"/ws/1?token={token}") as websocket:
         assert websocket is not None
 
     app.dependency_overrides.clear()
+
 
 def test_websocket_send_message():
     conversation_repo = AsyncMock()
@@ -46,27 +43,18 @@ def test_websocket_send_message():
         conversation_id=1,
         sender_id=1,
         content="Hello",
-        created_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
     )
 
-    app.dependency_overrides[get_conversation_repo] = (
-        lambda: conversation_repo
-    )
-    app.dependency_overrides[get_message_service] = (
-        lambda: message_service
-    )
+    app.dependency_overrides[get_conversation_repo] = lambda: conversation_repo
+    app.dependency_overrides[get_message_service] = lambda: message_service
 
     token = create_access_token(user_id=1)
 
     client = TestClient(app)
 
-    with client.websocket_connect(
-        f"/ws/1?token={token}"
-    ) as websocket:
-
-        websocket.send_json({
-            "content": "Hello"
-        })
+    with client.websocket_connect(f"/ws/1?token={token}") as websocket:
+        websocket.send_json({"content": "Hello"})
 
         response = websocket.receive_json()
 
@@ -82,6 +70,7 @@ def test_websocket_send_message():
     )
 
     app.dependency_overrides.clear()
+
 
 def test_websocket_user_not_member():
     conversation_repo = AsyncMock()
@@ -100,10 +89,9 @@ def test_websocket_user_not_member():
 
     client = TestClient(app)
 
-    with pytest.raises(Exception):
-        with client.websocket_connect(
-            f"/ws/1?token={token}"
-        ):
-            pass
+    with pytest.raises(WebSocketDisconnect), client.websocket_connect(
+        f"/ws/1?token={token}"
+    ):
+        pass
 
     app.dependency_overrides.clear()

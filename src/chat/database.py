@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 from sqlalchemy.orm import DeclarativeBase
+
 from chat.config import settings
 
 engine = create_async_engine(
@@ -12,12 +13,14 @@ engine = create_async_engine(
 )
 async_session_factory = async_sessionmaker(
     bind=engine,
-    class_= AsyncSession,
+    class_=AsyncSession,
     expire_on_commit=False,
 )
 
+
 class Base(DeclarativeBase):
     pass
+
 
 async def get_db():
     async with async_session_factory() as session:

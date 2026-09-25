@@ -1,22 +1,15 @@
-from pathlib import Path
 import sys
+from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from logging.config import fileConfig
-from sqlalchemy import create_engine
 
-from sqlalchemy import pool
-from chat.config import settings
+from sqlalchemy import create_engine, pool
+
 from alembic import context
-
-
+from chat.config import settings
 from chat.database import Base
-from chat.models import (
-    User,
-    Conversation,
-    ConversationMember,
-    Message,
-)
+
 print("ENV FILE:", Path(__file__).resolve())
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

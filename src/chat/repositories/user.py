@@ -1,16 +1,15 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from chat.models.user import User
+
 
 class UserRepository:
     def __init__(self, db: AsyncSession):
         self.db = db
 
     async def create(self, email: str, password_hash: str) -> User:
-        user = User(
-            email=email,
-            password_hash=password_hash
-        )
+        user = User(email=email, password_hash=password_hash)
         self.db.add(user)
         await self.db.commit()
         await self.db.refresh(user)

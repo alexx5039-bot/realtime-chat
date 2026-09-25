@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock
 import pytest
 from fastapi import HTTPException
 
-from chat.models import Conversation, User, ConversationMember
+from chat.models import Conversation, ConversationMember, User
 from chat.services.conversation import ConversationService
 
 
@@ -27,9 +27,8 @@ async def test_create_conversation():
     result = await service.create_conversation([1, 2])
 
     assert result.id == 1
-    conversation_repo.create.assert_awaited_once_with(
-        user_ids=[1, 2]
-    )
+    conversation_repo.create.assert_awaited_once_with(user_ids=[1, 2])
+
 
 @pytest.mark.asyncio
 async def test_creat_conversation_require_two_users():
@@ -37,12 +36,12 @@ async def test_creat_conversation_require_two_users():
     conversation_repo = AsyncMock()
 
     service = ConversationService(
-        conversation_repo=conversation_repo,
-        user_repo=user_repo
+        conversation_repo=conversation_repo, user_repo=user_repo
     )
     with pytest.raises(HTTPException) as exc_info:
         await service.create_conversation([1])
     assert exc_info.value.status_code == 400
+
 
 @pytest.mark.asyncio
 async def test_create_conversation_user_not_found():
@@ -60,6 +59,7 @@ async def test_create_conversation_user_not_found():
         await service.create_conversation([1, 2])
 
     assert exc_info.value.status_code == 404
+
 
 @pytest.mark.asyncio
 async def test_add_conversation_member():
@@ -91,6 +91,7 @@ async def test_add_conversation_member():
 
     conversation_repo.add_member.assert_awaited_once_with(1, 2)
 
+
 @pytest.mark.asyncio
 async def test_add_conversation_member_conversation_not_found():
     user_repo = AsyncMock()
@@ -110,6 +111,7 @@ async def test_add_conversation_member_conversation_not_found():
         )
 
     assert exc_info.value.status_code == 404
+
 
 @pytest.mark.asyncio
 async def test_add_conversation_member_already_member():
