@@ -41,8 +41,9 @@ def get_conversation_service(
 
 def get_message_service(
     message_repo: MessageRepository = Depends(get_message_repo),
+    conversation_repo: ConversationRepository = Depends(get_conversation_repo)
 ) -> MessageService:
-    return MessageService(message_repo)
+    return MessageService(message_repo, conversation_repo)
 
 
 async def get_current_user(
